@@ -91,7 +91,7 @@ public:
 
 	// Request a faucet for a wallet
 	UFUNCTION(BlueprintCallable, Category = "Solana")
-	void RequestFaucet(const FSolanaPublicKey &PublicKey, int64 Amount, FString &ErrorMessage);
+	bool RequestFaucet(const FSolanaPublicKey &PublicKey, int64 Amount, FString &ErrorMessage);
 
 	UFUNCTION(BlueprintCallable, Category = "Solana")
 	static FSolanaPublicKey GetPublicKey(const FSolanaKeyPair &KeyPair);
@@ -110,6 +110,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Solana")
 	bool TransferSPL(const FSolanaKeyPair &SenderKeyPair, const FSolanaPublicKey &RecipientPublicKey, const FSolanaPublicKey &MintPublicKey, int64 Amount, FString &ErrorMessage);
+
+	UFUNCTION(BlueprintCallable, Category = "Solana")
+	bool TransferSOL(const FSolanaKeyPair &SenderKeyPair, const FSolanaPublicKey &RecipientPublicKey, int64 Amount, FString &ErrorMessage);
 
 private:
 	SolClient *SolanaClient; // Pointer to Solana client

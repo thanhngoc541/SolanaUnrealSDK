@@ -310,20 +310,20 @@ FSolanaKeyPair USolanaManager::LoadWalletFromFile(const FString &FilePath, FStri
     return Wallet;
 }
 
-void USolanaManager::RequestFaucet(const FSolanaPublicKey &PublicKey, int64 Amount, FString &ErrorMessage)
+bool USolanaManager::RequestFaucet(const FSolanaPublicKey &PublicKey, int64 Amount, FString &ErrorMessage)
 {
     if (!SolanaClient)
     {
         ErrorMessage = TEXT("Solana client is not initialized. Call ConnectToSolana first.");
         UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
-        return;
+        return false;
     }
 
     if (Amount <= 0)
     {
         ErrorMessage = TEXT("Invalid faucet amount. Amount must be greater than 0.");
         UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
-        return;
+        return false;
     }
 
     // Convert FSolanaPublicKey to SolPublicKey
@@ -339,15 +339,19 @@ void USolanaManager::RequestFaucet(const FSolanaPublicKey &PublicKey, int64 Amou
     {
         FString AmountStr = FString::Printf(TEXT("%llu lamports"), Uint64Amount);
         UE_LOG(LogTemp, Log, TEXT("Successfully requested faucet of %s for public key: %s"), *AmountStr, *FString::FromHexBlob(PublicKey.Data.GetData(), 32));
+
         if (GEngine)
         {
             GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Faucet requested: %s for public key: %s"), *AmountStr, *FString::FromHexBlob(PublicKey.Data.GetData(), 32)));
         }
+
+        return true;
     }
     else
     {
-        ErrorMessage = TEXT("Faucet request failed");
+        ErrorMessage = TEXT("Faucet request failed. Possible causes: insufficient funds on the test network or invalid public key.");
         UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return false;
     }
 }
 
@@ -582,6 +586,54 @@ bool USolanaManager::TransferSPL(const FSolanaKeyPair &SenderKeyPair, const FSol
     else
     {
         ErrorMessage = TEXT("Failed to transfer SPL tokens.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return false;
+    }
+}
+
+bool USolanaManager::TransferSOL(const FSolanaKeyPair &SenderKeyPair, const FSolanaPublicKey &RecipientPublicKey, int64 Amount, FString &ErrorMessage)
+{
+    if (!SolanaClient)
+    {
+        ErrorMessage = TEXT("Solana client is not initialized. Call ConnectToSolana first.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return false;
+    }
+
+    if (Amount <= 0)
+    {
+        ErrorMessage = TEXT("Invalid transfer amount. Amount must be greater than 0.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return false;
+    }
+
+    // Convert FSolanaKeyPair to SolKeyPair for the sender
+    SolKeyPair Sender;
+    memcpy(Sender.bytes, SenderKeyPair.PrivateKey.GetData(), 64);
+    memcpy(Sender.pubkey.data, SenderKeyPair.PublicKey.Data.GetData(), 32);
+
+    // Convert FSolanaPublicKey to SolPublicKey for the recipient
+    SolPublicKey Recipient;
+    memcpy(Recipient.data, RecipientPublicKey.Data.GetData(), 32);
+
+    // Call the Solana SDK function for transferring SOL
+    bool Success = transfer_sol(SolanaClient, &Sender, &Recipient, static_cast<uint64_t>(Amount));
+
+    if (Success)
+    {
+        FString AmountStr = FString::Printf(TEXT("%lld lamports"), Amount);
+        UE_LOG(LogTemp, Log, TEXT("Successfully transferred %s to recipient: %s"), *AmountStr, *FString::FromHexBlob(RecipientPublicKey.Data.GetData(), 32));
+
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Transferred %s SOL to recipient: %s"), *AmountStr, *FString::FromHexBlob(RecipientPublicKey.Data.GetData(), 32)));
+        }
+
+        return true;
+    }
+    else
+    {
+        ErrorMessage = TEXT("Failed to transfer SOL. Ensure the sender has sufficient balance and the recipient's public key is correct.");
         UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
         return false;
     }
