@@ -638,3 +638,71 @@ bool USolanaManager::TransferSOL(const FSolanaKeyPair &SenderKeyPair, const FSol
         return false;
     }
 }
+
+TArray<FTokenInfo> USolanaManager::GetAllTokens(const FSolanaPublicKey &WalletPublicKey, FString &ErrorMessage)
+{
+    TArray<FTokenInfo> Tokens;
+
+    if (!SolanaClient)
+    {
+        ErrorMessage = TEXT("Solana client is not initialized. Call ConnectToSolana first.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return Tokens;
+    }
+
+    // Convert FSolanaPublicKey to SolPublicKey
+    SolPublicKey SolPubKey;
+    memcpy(SolPubKey.data, WalletPublicKey.Data.GetData(), 32);
+
+    // Call the SDK function to retrieve tokens
+    TokenList *TokenListPtr = get_all_tokens(SolanaClient, &SolPubKey);
+    if (!TokenListPtr || TokenListPtr->len == 0)
+    {
+        ErrorMessage = TEXT("No tokens found or failed to retrieve tokens.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return Tokens;
+    }
+
+    // Iterate over the token list and populate the array
+    for (uintptr_t i = 0; i < TokenListPtr->len; ++i)
+    {
+        TokenInfo *TokenData = &TokenListPtr->data[i];
+        FTokenInfo Token;
+
+        Token.MintAddress = UTF8_TO_TCHAR(TokenData->mint);
+        Token.Balance = UTF8_TO_TCHAR(TokenData->balance);
+        Token.OwnerAddress = UTF8_TO_TCHAR(TokenData->owner);
+
+        Tokens.Add(Token);
+    }
+
+    // Free the token list memory
+    free_token_list(TokenListPtr);
+
+    return Tokens;
+}
+
+void USolanaManager::ShowTokensInPopup(const TArray<FTokenInfo> &Tokens, const FString &Title)
+{
+    FString Message;
+    if (Tokens.Num() == 0)
+    {
+        Message = TEXT("No tokens found.");
+    }
+    else
+    {
+        for (int32 i = 0; i < Tokens.Num(); ++i)
+        {
+            const FTokenInfo &Token = Tokens[i];
+            Message += FString::Printf(
+                TEXT("Token %d:\n  Mint Address: %s\n  Balance: %s\n  Owner: %s\n\n"),
+                i + 1,
+                *Token.MintAddress,
+                *Token.Balance,
+                *Token.OwnerAddress);
+        }
+    }
+
+    // Use the existing ShowPopup function
+    ShowPopup(Title, Message);
+}

@@ -7,6 +7,26 @@
 #include "UObject/NoExportTypes.h"
 #include "SolanaManager.generated.h"
 
+USTRUCT(BlueprintType)
+struct FTokenInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Solana")
+	FString MintAddress; // Address of the token's mint
+
+	UPROPERTY(BlueprintReadOnly, Category = "Solana")
+	FString Balance; // Balance of the token
+
+	UPROPERTY(BlueprintReadOnly, Category = "Solana")
+	FString OwnerAddress; // Owner of the token
+
+	FTokenInfo()
+		: MintAddress(TEXT("")), Balance(TEXT("")), OwnerAddress(TEXT(""))
+	{
+	}
+};
+
 // Struct for Solana Public Key
 USTRUCT(BlueprintType)
 struct FSolanaPublicKey
@@ -113,6 +133,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Solana")
 	bool TransferSOL(const FSolanaKeyPair &SenderKeyPair, const FSolanaPublicKey &RecipientPublicKey, int64 Amount, FString &ErrorMessage);
+
+	UFUNCTION(BlueprintCallable, Category = "Solana")
+	TArray<FTokenInfo> GetAllTokens(const FSolanaPublicKey &WalletPublicKey, FString &ErrorMessage);
+
+	UFUNCTION(BlueprintCallable, Category = "Solana")
+	static void ShowTokensInPopup(const TArray<FTokenInfo> &Tokens, const FString &Title);
 
 private:
 	SolClient *SolanaClient; // Pointer to Solana client
