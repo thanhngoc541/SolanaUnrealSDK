@@ -117,49 +117,50 @@ void USolanaManager::GetBalance(const FSolanaPublicKey &PublicKey, FString &Bala
     }
 }
 
-FString USolanaManager::DisplayPublicKey(const FSolanaPublicKey &PublicKey)
+// Display Solana Public Key
+FString USolanaManager::DisplayPublicKey(const FSolanaPublicKey &PublicKey, const FString &Description)
 {
     FString KeyHex = FString::FromHexBlob(PublicKey.Data.GetData(), 32);
 
-    // Log to Output Log
-    UE_LOG(LogTemp, Log, TEXT("Public Key: %s"), *KeyHex);
+    // Log to Output Log with description
+    UE_LOG(LogTemp, Log, TEXT("%s\nPublic Key: %s"), *Description, *KeyHex);
 
-    // Display on-screen message
+    // Display on-screen message with description
     if (GEngine)
     {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Public Key: %s"), *KeyHex));
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("%s\nPublic Key: %s"), *Description, *KeyHex));
     }
 
-    // Show popup
-    FText Title = FText::FromString(TEXT("Public Key"));
-    FText Message = FText::FromString(FString::Printf(TEXT("Public Key: %s"), *KeyHex));
+    // Show popup with description
+    FText Title = FText::FromString(TEXT("Public Key Details"));
+    FText Message = FText::FromString(FString::Printf(TEXT("%s\n\nPublic Key: %s"), *Description, *KeyHex));
     FMessageDialog::Open(EAppMsgType::Ok, Message, &Title);
 
     return KeyHex;
 }
 
 // Display Solana Key Pair
-FString USolanaManager::DisplayKeyPair(const FSolanaKeyPair &KeyPair)
+FString USolanaManager::DisplayKeyPair(const FSolanaKeyPair &KeyPair, const FString &Description)
 {
     FString PrivateKeyHex = FString::FromHexBlob(KeyPair.PrivateKey.GetData(), 64);
     FString PublicKeyHex = FString::FromHexBlob(KeyPair.PublicKey.Data.GetData(), 32);
 
-    // Log to Output Log
-    UE_LOG(LogTemp, Log, TEXT("Key Pair Details:"));
-    UE_LOG(LogTemp, Log, TEXT("Private Key: %s"), *PrivateKeyHex);
+    // Log to Output Log with description
+    UE_LOG(LogTemp, Log, TEXT("%s\nKey Pair Details:"), *Description);
     UE_LOG(LogTemp, Log, TEXT("Public Key: %s"), *PublicKeyHex);
+    UE_LOG(LogTemp, Log, TEXT("Private Key: %s"), *PrivateKeyHex);
 
-    // Display on-screen messages
+    // Display on-screen messages with description
     if (GEngine)
     {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Key Pair Details:"));
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("%s\nKey Pair Details:"), *Description));
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Public Key: %s"), *PublicKeyHex));
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Private Key: %s"), *PrivateKeyHex));
     }
 
-    // Show popup
+    // Show popup with description
     FText Title = FText::FromString(TEXT("Key Pair Details"));
-    FText Message = FText::FromString(FString::Printf(TEXT("Public Key: %s\nPrivate Key: %s"), *PublicKeyHex, *PrivateKeyHex));
+    FText Message = FText::FromString(FString::Printf(TEXT("%s\n\nPublic Key: %s\nPrivate Key: %s"), *Description, *PublicKeyHex, *PrivateKeyHex));
     FMessageDialog::Open(EAppMsgType::Ok, Message, &Title);
 
     return FString::Printf(TEXT("Public Key: %s\nPrivate Key: %s"), *PublicKeyHex, *PrivateKeyHex);
@@ -307,4 +308,281 @@ FSolanaKeyPair USolanaManager::LoadWalletFromFile(const FString &FilePath, FStri
     }
 
     return Wallet;
+}
+
+void USolanaManager::RequestFaucet(const FSolanaPublicKey &PublicKey, int64 Amount, FString &ErrorMessage)
+{
+    if (!SolanaClient)
+    {
+        ErrorMessage = TEXT("Solana client is not initialized. Call ConnectToSolana first.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return;
+    }
+
+    if (Amount <= 0)
+    {
+        ErrorMessage = TEXT("Invalid faucet amount. Amount must be greater than 0.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return;
+    }
+
+    // Convert FSolanaPublicKey to SolPublicKey
+    SolPublicKey SolPubKey;
+    memcpy(SolPubKey.data, PublicKey.Data.GetData(), 32);
+
+    // Convert int64 to uint64
+    uint64 Uint64Amount = static_cast<uint64>(Amount);
+
+    // Call the request_airdrop function
+    bool Success = request_airdrop(SolanaClient, &SolPubKey, Uint64Amount);
+    if (Success)
+    {
+        FString AmountStr = FString::Printf(TEXT("%llu lamports"), Uint64Amount);
+        UE_LOG(LogTemp, Log, TEXT("Successfully requested faucet of %s for public key: %s"), *AmountStr, *FString::FromHexBlob(PublicKey.Data.GetData(), 32));
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Faucet requested: %s for public key: %s"), *AmountStr, *FString::FromHexBlob(PublicKey.Data.GetData(), 32)));
+        }
+    }
+    else
+    {
+        ErrorMessage = TEXT("Faucet request failed");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+    }
+}
+
+FSolanaPublicKey USolanaManager::GetPublicKey(const FSolanaKeyPair &KeyPair)
+{
+    return KeyPair.PublicKey;
+}
+
+bool USolanaManager::CreateSPLToken(const FSolanaKeyPair &PayerKeyPair, const FSolanaKeyPair &MintKeyPair, FString &ErrorMessage)
+{
+    if (!SolanaClient)
+    {
+        ErrorMessage = TEXT("Solana client is not initialized. Call ConnectToSolana first.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return false;
+    }
+
+    // Convert FSolanaKeyPair to SolKeyPair for both payer and mint key pairs
+    SolKeyPair Payer;
+    memcpy(Payer.bytes, PayerKeyPair.PrivateKey.GetData(), 64);
+    memcpy(Payer.pubkey.data, PayerKeyPair.PublicKey.Data.GetData(), 32);
+
+    SolKeyPair Mint;
+    memcpy(Mint.bytes, MintKeyPair.PrivateKey.GetData(), 64);
+    memcpy(Mint.pubkey.data, MintKeyPair.PublicKey.Data.GetData(), 32);
+
+    // Call the Solana SDK function to create the SPL token
+    bool Result = create_spl_token(SolanaClient, &Payer, &Mint);
+
+    if (Result)
+    {
+        UE_LOG(LogTemp, Log, TEXT("SPL Token created successfully."));
+        return true;
+    }
+    else
+    {
+        ErrorMessage = TEXT("Failed to create SPL token.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return false;
+    }
+}
+
+bool USolanaManager::GetMintInfo(const FSolanaPublicKey &MintPublicKey, FString &MintAuthority, int64 &Supply, int32 &Decimals, bool &IsInitialized, FString &FreezeAuthority, FString &ErrorMessage)
+{
+    if (!SolanaClient)
+    {
+        ErrorMessage = TEXT("Solana client is not initialized. Call ConnectToSolana first.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return false;
+    }
+
+    // Convert FSolanaPublicKey to SolPublicKey
+    SolPublicKey SolPubKey;
+    memcpy(SolPubKey.data, MintPublicKey.Data.GetData(), 32);
+
+    // Call the Solana SDK function to get mint info
+    SolMint *MintInfo = get_mint_info(SolanaClient, &SolPubKey);
+
+    if (!MintInfo)
+    {
+        ErrorMessage = TEXT("Failed to retrieve mint information.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return false;
+    }
+
+    // Extract mint details
+    if (MintInfo->mint_authority)
+    {
+        MintAuthority = FString::FromHexBlob(MintInfo->mint_authority->data, 32);
+    }
+    else
+    {
+        MintAuthority = TEXT("None");
+    }
+
+    Supply = static_cast<int64>(MintInfo->supply);
+    Decimals = static_cast<int32>(MintInfo->decimals);
+    IsInitialized = MintInfo->is_initialized;
+
+    if (MintInfo->freeze_authority)
+    {
+        FreezeAuthority = FString::FromHexBlob(MintInfo->freeze_authority->data, 32);
+    }
+    else
+    {
+        FreezeAuthority = TEXT("None");
+    }
+
+    // Log the mint details
+    UE_LOG(LogTemp, Log, TEXT("Mint Info Retrieved Successfully:"));
+    UE_LOG(LogTemp, Log, TEXT("Mint Authority: %s"), *MintAuthority);
+    UE_LOG(LogTemp, Log, TEXT("Supply: %lld"), Supply);
+    UE_LOG(LogTemp, Log, TEXT("Decimals: %d"), Decimals);
+    UE_LOG(LogTemp, Log, TEXT("Is Initialized: %s"), IsInitialized ? TEXT("True") : TEXT("False"));
+    UE_LOG(LogTemp, Log, TEXT("Freeze Authority: %s"), *FreezeAuthority);
+
+    // Free the memory allocated for MintInfo
+    free(MintInfo);
+
+    return true;
+}
+
+bool USolanaManager::MintSPL(const FSolanaKeyPair &PayerKeyPair, const FSolanaKeyPair &MintAuthorityKeyPair, const FSolanaPublicKey &RecipientPublicKey, int64 Amount, FString &ErrorMessage)
+{
+    if (!SolanaClient)
+    {
+        ErrorMessage = TEXT("Solana client is not initialized. Call ConnectToSolana first.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return false;
+    }
+
+    if (Amount <= 0)
+    {
+        ErrorMessage = TEXT("Invalid mint amount. Amount must be greater than 0.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return false;
+    }
+
+    // Convert FSolanaKeyPair to SolKeyPair for the mint authority
+    SolKeyPair Payer;
+    memcpy(Payer.bytes, PayerKeyPair.PrivateKey.GetData(), 64);
+    memcpy(Payer.pubkey.data, PayerKeyPair.PublicKey.Data.GetData(), 32);
+
+    // Convert FSolanaKeyPair to SolKeyPair for the mint authority
+    SolKeyPair MintAuthority;
+    memcpy(MintAuthority.bytes, MintAuthorityKeyPair.PrivateKey.GetData(), 64);
+    memcpy(MintAuthority.pubkey.data, MintAuthorityKeyPair.PublicKey.Data.GetData(), 32);
+
+    // Convert FSolanaPublicKey to SolPublicKey for the recipient
+    SolPublicKey Recipient;
+    memcpy(Recipient.data, RecipientPublicKey.Data.GetData(), 32);
+
+    // Call the mint_spl function
+    bool Success = mint_spl(SolanaClient, &Payer, &MintAuthority, &Recipient, static_cast<uint64>(Amount));
+    if (Success)
+    {
+        FString AmountStr = FString::Printf(TEXT("%lld tokens"), Amount);
+        UE_LOG(LogTemp, Log, TEXT("Successfully minted %s to recipient: %s"), *AmountStr, *FString::FromHexBlob(RecipientPublicKey.Data.GetData(), 32));
+
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Successfully minted %s to recipient: %s"), *AmountStr, *FString::FromHexBlob(RecipientPublicKey.Data.GetData(), 32)));
+        }
+
+        return true;
+    }
+    else
+    {
+        ErrorMessage = TEXT("Failed to mint SPL tokens.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return false;
+    }
+}
+
+bool USolanaManager::GetAssociatedTokenBalance(const FSolanaPublicKey &OwnerPublicKey, const FSolanaPublicKey &MintPublicKey, int64 &Balance, FString &ErrorMessage)
+{
+    if (!SolanaClient)
+    {
+        ErrorMessage = TEXT("Solana client is not initialized. Call ConnectToSolana first.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return false;
+    }
+
+    // Convert FSolanaPublicKey to SolPublicKey for the owner and mint
+    SolPublicKey SolOwnerPubKey;
+    memcpy(SolOwnerPubKey.data, OwnerPublicKey.Data.GetData(), 32);
+
+    SolPublicKey SolMintPubKey;
+    memcpy(SolMintPubKey.data, MintPublicKey.Data.GetData(), 32);
+
+    // Call the SDK function to get the associated token balance
+    uint64_t Result = get_associated_token_balance(SolanaClient, &SolOwnerPubKey, &SolMintPubKey);
+
+    if (Result == UINT64_MAX) // Assuming `UINT64_MAX` indicates an error, based on the SDK's behavior
+    {
+        ErrorMessage = TEXT("Failed to retrieve the associated token balance.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return false;
+    }
+
+    Balance = static_cast<int64>(Result);
+
+    // Log the balance details
+    UE_LOG(LogTemp, Log, TEXT("Associated Token Balance: %lld"), Balance);
+
+    return true;
+}
+
+bool USolanaManager::TransferSPL(const FSolanaKeyPair &SenderKeyPair, const FSolanaPublicKey &RecipientPublicKey, const FSolanaPublicKey &MintPublicKey, int64 Amount, FString &ErrorMessage)
+{
+    if (!SolanaClient)
+    {
+        ErrorMessage = TEXT("Solana client is not initialized. Call ConnectToSolana first.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return false;
+    }
+
+    if (Amount <= 0)
+    {
+        ErrorMessage = TEXT("Invalid transfer amount. Amount must be greater than 0.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return false;
+    }
+
+    // Convert FSolanaKeyPair to SolKeyPair for the sender
+    SolKeyPair Sender;
+    memcpy(Sender.bytes, SenderKeyPair.PrivateKey.GetData(), 64);
+    memcpy(Sender.pubkey.data, SenderKeyPair.PublicKey.Data.GetData(), 32);
+
+    // Convert FSolanaPublicKey to SolPublicKey for recipient and mint
+    SolPublicKey SolRecipientPubKey;
+    memcpy(SolRecipientPubKey.data, RecipientPublicKey.Data.GetData(), 32);
+
+    SolPublicKey SolMintPubKey;
+    memcpy(SolMintPubKey.data, MintPublicKey.Data.GetData(), 32);
+
+    // Call the transfer_spl function from the Solana SDK
+    bool Success = transfer_spl(SolanaClient, &Sender, &SolRecipientPubKey, &SolMintPubKey, static_cast<uint64_t>(Amount));
+
+    if (Success)
+    {
+        FString AmountStr = FString::Printf(TEXT("%lld tokens"), Amount);
+        UE_LOG(LogTemp, Log, TEXT("Successfully transferred %s to recipient: %s"), *AmountStr, *FString::FromHexBlob(RecipientPublicKey.Data.GetData(), 32));
+
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Transferred %s tokens to recipient: %s"), *AmountStr, *FString::FromHexBlob(RecipientPublicKey.Data.GetData(), 32)));
+        }
+
+        return true;
+    }
+    else
+    {
+        ErrorMessage = TEXT("Failed to transfer SPL tokens.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return false;
+    }
 }

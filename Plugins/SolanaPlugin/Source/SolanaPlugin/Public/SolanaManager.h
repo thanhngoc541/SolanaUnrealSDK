@@ -60,7 +60,7 @@ public:
 
 	// Create a new wallet
 	UFUNCTION(BlueprintCallable, Category = "Solana")
-	FSolanaKeyPair CreateWallet();
+	static FSolanaKeyPair CreateWallet();
 
 	// Retrieve balance for a wallet
 	UFUNCTION(BlueprintCallable, Category = "Solana")
@@ -68,26 +68,48 @@ public:
 
 	// Display Solana Public Key
 	UFUNCTION(BlueprintCallable, Category = "Solana")
-	FString DisplayPublicKey(const FSolanaPublicKey &PublicKey);
+	static FString DisplayPublicKey(const FSolanaPublicKey &PublicKey, const FString &Description);
 
 	// Display Solana Key Pair
 	UFUNCTION(BlueprintCallable, Category = "Solana")
-	FString DisplayKeyPair(const FSolanaKeyPair &KeyPair);
+	static FString DisplayKeyPair(const FSolanaKeyPair &KeyPair, const FString &Description);
 
 	UFUNCTION(BlueprintCallable, Category = "Solana")
-	void ShowPopup(const FString &Title, const FString &Message);
+	static void ShowPopup(const FString &Title, const FString &Message);
 
 	// Get Wallet Address from Solana Key Pair
 	UFUNCTION(BlueprintCallable, Category = "Solana")
-	FString GetWalletAddress(const FSolanaKeyPair &KeyPair);
+	static FString GetWalletAddress(const FSolanaKeyPair &KeyPair);
 
 	// Create and save wallet to a file
 	UFUNCTION(BlueprintCallable, Category = "Solana")
-	FSolanaKeyPair CreateAndSaveWallet(const FString &FilePath, FString &ErrorMessage);
+	static FSolanaKeyPair CreateAndSaveWallet(const FString &FilePath, FString &ErrorMessage);
 
 	// Load a wallet from a file
 	UFUNCTION(BlueprintCallable, Category = "Solana")
-	FSolanaKeyPair LoadWalletFromFile(const FString &FilePath, FString &ErrorMessage);
+	static FSolanaKeyPair LoadWalletFromFile(const FString &FilePath, FString &ErrorMessage);
+
+	// Request a faucet for a wallet
+	UFUNCTION(BlueprintCallable, Category = "Solana")
+	void RequestFaucet(const FSolanaPublicKey &PublicKey, int64 Amount, FString &ErrorMessage);
+
+	UFUNCTION(BlueprintCallable, Category = "Solana")
+	static FSolanaPublicKey GetPublicKey(const FSolanaKeyPair &KeyPair);
+
+	UFUNCTION(BlueprintCallable, Category = "Solana")
+	bool CreateSPLToken(const FSolanaKeyPair &PayerKeyPair, const FSolanaKeyPair &MintKeyPair, FString &ErrorMessage);
+
+	UFUNCTION(BlueprintCallable, Category = "Solana")
+	bool GetMintInfo(const FSolanaPublicKey &MintPublicKey, FString &MintAuthority, int64 &Supply, int32 &Decimals, bool &IsInitialized, FString &FreezeAuthority, FString &ErrorMessage);
+
+	UFUNCTION(BlueprintCallable, Category = "Solana")
+	bool MintSPL(const FSolanaKeyPair &PayerKeyPair, const FSolanaKeyPair &MintAuthorityKeyPair, const FSolanaPublicKey &RecipientPublicKey, int64 Amount, FString &ErrorMessage);
+
+	UFUNCTION(BlueprintCallable, Category = "Solana")
+	bool GetAssociatedTokenBalance(const FSolanaPublicKey &OwnerPublicKey, const FSolanaPublicKey &MintPublicKey, int64 &Balance, FString &ErrorMessage);
+
+	UFUNCTION(BlueprintCallable, Category = "Solana")
+	bool TransferSPL(const FSolanaKeyPair &SenderKeyPair, const FSolanaPublicKey &RecipientPublicKey, const FSolanaPublicKey &MintPublicKey, int64 Amount, FString &ErrorMessage);
 
 private:
 	SolClient *SolanaClient; // Pointer to Solana client
