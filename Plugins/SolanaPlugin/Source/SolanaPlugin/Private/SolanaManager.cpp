@@ -90,7 +90,6 @@ FSolanaKeyPair USolanaManager::CreateWallet()
     return Wallet;
 }
 
-// Retrieve balance for a wallet
 void USolanaManager::GetBalance(const FSolanaPublicKey &PublicKey, FString &Balance, FString &ErrorMessage)
 {
     if (!SolanaClient)
@@ -105,15 +104,24 @@ void USolanaManager::GetBalance(const FSolanaPublicKey &PublicKey, FString &Bala
 
     uint64_t Bal = get_balance(SolanaClient, &SolPubKey);
 
-    if (Bal == 0)
+    if (Bal == UINT64_MAX) // Assuming the SDK uses UINT64_MAX for errors
     {
-        ErrorMessage = TEXT("Failed to retrieve balance. Ensure the public key is correct.");
+        ErrorMessage = TEXT("Failed to retrieve balance. Ensure the public key is correct or try again.");
         UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
     }
     else
     {
         Balance = FString::Printf(TEXT("%llu"), Bal);
-        UE_LOG(LogTemp, Log, TEXT("Balance for public key: %s is %s"), *FString::FromHexBlob(PublicKey.Data.GetData(), 32), *Balance);
+
+        if (Bal == 0)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("The wallet has a balance of 0."));
+        }
+        else
+        {
+            UE_LOG(LogTemp, Log, TEXT("Balance for public key: %s is %s"),
+                   *FString::FromHexBlob(PublicKey.Data.GetData(), 32), *Balance);
+        }
     }
 }
 
@@ -705,4 +713,44 @@ void USolanaManager::ShowTokensInPopup(const TArray<FTokenInfo> &Tokens, const F
 
     // Use the existing ShowPopup function
     ShowPopup(Title, Message);
+}
+
+FSolanaPublicKey USolanaManager::AddressToPublicKey(const FString &Address, FString &ErrorMessage)
+{
+    FSolanaPublicKey PublicKey;
+
+    FTCHARToUTF8 UTF8Converter(*Address);
+    const char *CAddress = UTF8Converter.Get();
+
+    SolPublicKey *RawPubKey = get_pubkey_from_address(CAddress);
+    if (!RawPubKey)
+    {
+        ErrorMessage = TEXT("Invalid Solana address.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return PublicKey;
+    }
+
+    memcpy(PublicKey.Data.GetData(), RawPubKey->data, 32);
+    free(RawPubKey);
+
+    return PublicKey;
+}
+
+FString USolanaManager::PublicKeyToAddress(const FSolanaPublicKey &PublicKey, FString &ErrorMessage)
+{
+    SolPublicKey RawPubKey;
+    memcpy(RawPubKey.data, PublicKey.Data.GetData(), 32);
+
+    char *CAddress = get_address_from_pubkey(&RawPubKey);
+    if (!CAddress)
+    {
+        ErrorMessage = TEXT("Failed to convert public key to address.");
+        UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
+        return TEXT("");
+    }
+
+    FString Address = UTF8_TO_TCHAR(CAddress);
+    free(CAddress);
+
+    return Address;
 }

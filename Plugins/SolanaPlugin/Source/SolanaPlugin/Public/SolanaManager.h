@@ -140,6 +140,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Solana")
 	static void ShowTokensInPopup(const TArray<FTokenInfo> &Tokens, const FString &Title);
 
+	// Convert address (string) to public key
+	UFUNCTION(BlueprintCallable, Category = "Solana")
+	static FSolanaPublicKey AddressToPublicKey(const FString &Address, FString &ErrorMessage);
+
+	// Convert public key to address (string)
+	UFUNCTION(BlueprintCallable, Category = "Solana")
+	static FString PublicKeyToAddress(const FSolanaPublicKey &PublicKey, FString &ErrorMessage);
+
+
+
 private:
 	SolClient *SolanaClient; // Pointer to Solana client
 };
