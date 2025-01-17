@@ -69,12 +69,12 @@ Follow these steps to run the project:
 
 ### **Step 2: Build the Project**
 1. Ensure you have the required C++ development environment set up for Unreal Engine.
-2. Click **File > Generate Visual Studio Project Files** (or equivalent for your platform).
+2. Click **Tools > Generate Visual Studio Code Project Files** (or equivalent for your platform).
 3. Open the generated project in your IDE (e.g., Visual Studio, Xcode).
 4. Build the project to ensure all dependencies and plugins compile successfully.
 
 ### **Step 3: Set Up Solana RPC Endpoint**
-1. Obtain a Solana RPC endpoint from a provider like [QuickNode](https://www.quicknode.com) or [Alchemy](https://www.alchemy.com).
+1. Obtain a Solana RPC endpoint.
 2. Update the RPC URL in the Blueprint or C++ code where the Solana client is initialized:
    ```cpp
    SolanaManager->ConnectToSolana(TEXT("https://your-solana-rpc-endpoint.com"));
