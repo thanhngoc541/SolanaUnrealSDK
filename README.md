@@ -59,6 +59,39 @@ The `SolanaPlugin` is a custom Unreal Engine plugin designed to interact with th
 
 ---
 
+## **Running the Project**
+
+Follow these steps to run the project:
+
+### **Step 1: Open the Project**
+1. Clone or download the repository to your local machine.
+2. Open the project in Unreal Engine by double-clicking the `YourProject.uproject` file.
+
+### **Step 2: Build the Project**
+1. Ensure you have the required C++ development environment set up for Unreal Engine.
+2. Click **File > Generate Visual Studio Project Files** (or equivalent for your platform).
+3. Open the generated project in your IDE (e.g., Visual Studio, Xcode).
+4. Build the project to ensure all dependencies and plugins compile successfully.
+
+### **Step 3: Set Up Solana RPC Endpoint**
+1. Obtain a Solana RPC endpoint from a provider like [QuickNode](https://www.quicknode.com) or [Alchemy](https://www.alchemy.com).
+2. Update the RPC URL in the Blueprint or C++ code where the Solana client is initialized:
+   ```cpp
+   SolanaManager->ConnectToSolana(TEXT("https://your-solana-rpc-endpoint.com"));
+   ```
+
+### **Step 4: Test Blockchain Features**
+1. Use the provided Blueprints or C++ functions to:
+   - Create and manage wallets.
+   - Transfer SOL or SPL tokens.
+   - Fetch balances and token details.
+2. Examples are available in the `Content` folder under `Plugins/SolanaPlugin/Content`.
+
+### **Step 5: Play the Game**
+1. Click the **Play** button in the Unreal Engine Editor to test the blockchain interactions in your game.
+
+---
+
 ## **Installing SolanaPlugin in Another Project**
 
 ### **Step 1: Locate the Plugin**
@@ -145,4 +178,3 @@ This project is licensed under the [MIT License](LICENSE).
 - Unreal Engine community for development support.
 - Open-source contributors for their libraries and tools.
 
----
