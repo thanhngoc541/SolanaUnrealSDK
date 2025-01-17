@@ -1,118 +1,133 @@
-# **SolanaSDK - Unreal Engine Plugin for Solana Blockchain Integration**
+# **SolanaSDK Unreal Engine Project**
 
-## **Overview**
-SolanaSDK is an Unreal Engine plugin designed to seamlessly integrate Solana blockchain functionality into Unreal projects. This plugin enables developers to interact with Solana's blockchain, including wallet management, SOL transfers, token operations, and more.
+### **Overview**
+The **SolanaSDK** project integrates the Solana blockchain into Unreal Engine, enabling blockchain-based functionalities such as:
 
----
+- Wallet creation and management
+- SOL transfers
+- Token creation and management
+- Retrieving token balances
+- Direct interaction with Solana blockchain features
 
-## **Features**
-- **Wallet Management**: Create, load, and save Solana wallets.
-- **Blockchain Interactions**:
-  - Fetch wallet balances.
-  - Transfer SOL and SPL tokens.
-  - Request testnet airdrops.
-- **Token Operations**:
-  - Mint SPL tokens.
-  - Fetch token information.
-  - Manage associated token accounts.
-- **Blueprint Integration**: Full support for Unreal Engine Blueprints to simplify blockchain interactions.
-- **Cross-Platform**: Compatible with macOS and other platforms supported by Unreal Engine.
+This project is built with Unreal Engine and includes a custom plugin called `SolanaPlugin`.
 
 ---
 
-## **Getting Started**
+## **Project Structure**
 
-### **Prerequisites**
-- Unreal Engine 5.5.1
-- A Solana RPC endpoint (e.g., from [QuickNode](https://www.quicknode.com) or [Alchemy](https://www.alchemy.com))
-- Git for version control
-- C++ development environment for Unreal Engine
-
----
-
-### **Installation**
-
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/yourusername/SolanaSDK.git
-   ```
-
-2. **Move the Plugin**:
-   Copy the `SolanaPlugin` folder into your Unreal project’s `Plugins/` directory:
-   ```
-   /YourUnrealProject/Plugins/SolanaPlugin/
-   ```
-
-3. **Enable the Plugin**:
-   - Open your Unreal project.
-   - Go to `Edit > Plugins`.
-   - Search for "SolanaPlugin" and enable it.
-   - Restart the Unreal Editor if prompted.
-
-4. **Verify Integration**:
-   - Check for a `SolanaManager` Blueprint class in the plugin.
-   - Test basic operations like wallet creation and SOL transfers.
-
----
+The project follows Unreal Engine's standard folder structure with the addition of the `SolanaPlugin` under the `Plugins` directory.
 
 ### **Folder Structure**
+
 ```
 SolanaSDK/
+├── Config/                      # Configuration files for the project
+├── Content/                     # Game assets such as Blueprints, UI, and media
 ├── Plugins/
 │   └── SolanaPlugin/
-│       ├── Content/          # Example assets and Blueprints
-│       ├── Source/           # Plugin C++ source files
-│       ├── ThirdParty/       # Solana SDK and dependencies
-│       ├── Resources/        # Icon and metadata files
-│       └── SolanaPlugin.uplugin
-├── Config/
-├── Content/
-├── Saved/
-└── YourProject.uproject
+│       ├── Content/             # Example assets and Blueprints for the plugin
+│       ├── Resources/           # Icon and metadata files for the plugin
+│       ├── Source/              # Plugin source files
+│       │   └── SolanaPlugin/
+│       │       ├── Private/     # Private C++ source files
+│       │       │   ├── SolanaManager.cpp
+│       │       │   └── Other implementation files
+│       │       ├── Public/      # Public header files
+│       │       │   ├── SolanaManager.h
+│       │       │   └── Other public headers
+│       │       ├── ThirdParty/  # External SDKs and dependencies
+│       │       │   ├── solana_sdk.h          # Solana SDK header
+│       │       │   ├── libsolana_c_sdk.dylib # Precompiled Solana SDK binary
+│       │       │   └── Additional headers/libraries
+│       │       └── SolanaPlugin.Build.cs
+│       └── SolanaPlugin.uplugin # Plugin descriptor file
+├── Saved/                       # Auto-saved files
+└── YourProject.uproject         # Unreal Engine project descriptor
 ```
 
 ---
 
-## **Usage**
+## **SolanaPlugin**
 
-### **Blueprint Examples**
-- **Create Wallet**: Use the `CreateWallet` function to generate a new wallet.
-- **Transfer SOL**: Call the `TransferSOL` Blueprint node to send SOL to another wallet.
-- **Get Balance**: Use the `GetBalance` node to retrieve wallet balances.
+The `SolanaPlugin` is a custom Unreal Engine plugin designed to interact with the Solana blockchain. It provides:
 
-### **C++ Integration**
-Include the plugin header in your code:
-```cpp
-#include "SolanaManager.h"
-```
+### **Key Features**
+- **Wallet Management**: Create, load, and save wallets.
+- **SOL Transfers**: Send SOL to other wallets.
+- **Token Management**: Create SPL tokens and manage associated token accounts.
+- **Token Balances**: Retrieve balances for SOL and SPL tokens.
+- **Blueprint Integration**: Easy-to-use Blueprint nodes for blockchain operations.
+
+---
+
+## **Guide: Installing SolanaPlugin into Another Project**
+
+You can easily install the `SolanaPlugin` in any Unreal Engine project by following these steps:
+
+### **Step 1: Locate the Plugin**
+1. Navigate to the `Plugins/SolanaPlugin` directory in this project.
+
+### **Step 2: Copy the Plugin**
+1. Copy the entire `SolanaPlugin` folder (including `Source`, `Content`, and `Resources`).
+
+### **Step 3: Paste into Target Project**
+1. Paste the `SolanaPlugin` folder into the `Plugins` folder of your target Unreal Engine project. 
+   - If the `Plugins` folder doesn’t exist, create it in the root of your target project directory.
+
+### **Step 4: Enable the Plugin**
+1. Open your target project in Unreal Engine.
+2. Go to **Edit > Plugins**.
+3. Search for `SolanaPlugin` in the list of installed plugins.
+4. Enable the plugin and restart the project if prompted.
+
+### **Step 5: Verify Installation**
+1. After restarting, you can verify the plugin by navigating to the **Blueprint Editor**.
+2. Look for Solana-related Blueprint nodes like `CreateWallet`, `TransferSOL`, or `GetBalance`.
+
+---
+
+## **How to Use**
+
+### **Wallet Management**
+- Create a wallet using the `CreateWallet` Blueprint node or the corresponding C++ function.
+- Save the wallet to a file or load an existing one.
+
+### **Send SOL**
+- Use the `TransferSOL` Blueprint node to send SOL to another wallet.
+- Input the recipient address and the amount in lamports.
+
+### **Retrieve Balances**
+- Use the `GetBalance` node to fetch the balance of a wallet.
+
+### **Token Management**
+- Create SPL tokens using the `CreateSPLToken` function.
+- Mint tokens or fetch associated token balances.
+
+---
+
+## **Building the Plugin**
+
+If you need to rebuild the plugin or add features:
+
+1. Modify the source files in `Source/SolanaPlugin`.
+2. Ensure platform-specific binaries (e.g., `.dylib`, `.dll`) are in the `ThirdParty` directory.
+3. Rebuild the plugin using Unreal Engine's build tools.
 
 ---
 
 ## **Contributing**
-We welcome contributions to improve SolanaSDK. To contribute:
-1. Fork the repository.
-2. Create a feature branch: `git checkout -b feature/new-feature`.
-3. Commit your changes: `git commit -m "Add new feature"`.
-4. Push to the branch: `git push origin feature/new-feature`.
-5. Open a pull request.
 
----
-
-## **Support**
-If you encounter any issues or have questions, please open an issue in this repository or contact us via [email](mailto:support@solanasdk.com).
+Contributions are welcome! If you’d like to contribute:
+1. Fork this repository.
+2. Create a new branch for your feature or bug fix.
+3. Submit a pull request with a detailed description of your changes.
 
 ---
 
 ## **License**
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
----
+This project is licensed under the [MIT License](LICENSE).
 
-## **Acknowledgments**
-- [Solana](https://solana.com) for its blockchain technology.
-- Unreal Engine community for development support.
-- Open-source contributors for their libraries and tools.
+--- 
 
----
-
-Feel free to customize this README based on your specific project details and preferences!
+Feel free to modify this README further to include any project-specific details!
