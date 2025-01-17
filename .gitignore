@@ -78,3 +78,5 @@ DerivedDataCache/*
 
 /Plugins/SolanaPlugin/Content
 /Plugins/SolanaPlugin/Intermediate
+
+!Plugins/SolanaPlugin/Source/SolanaPlugin/ThirdParty/*.dylib
