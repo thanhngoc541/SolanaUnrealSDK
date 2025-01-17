@@ -1,0 +1,82 @@
+[
+	{
+		"file": "/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/Plugins/SolanaPlugin/Source/SolanaPlugin/Private/SolanaManager.cpp",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/.vscode/compileCommands_SolanaSDK/SolanaPlugin.27.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.5/Engine/Source"
+	},
+	{
+		"file": "/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/Plugins/SolanaPlugin/Source/SolanaPlugin/Private/SolanaPlugin.cpp",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/.vscode/compileCommands_SolanaSDK/SolanaPlugin.27.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.5/Engine/Source"
+	},
+	{
+		"file": "/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/Plugins/SolanaPlugin/Source/SolanaPlugin/Public/SolanaManager.h",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/.vscode/compileCommands_SolanaSDK/SolanaPlugin.27.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.5/Engine/Source"
+	},
+	{
+		"file": "/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/Plugins/SolanaPlugin/Source/SolanaPlugin/Public/SolanaPlugin.h",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/.vscode/compileCommands_SolanaSDK/SolanaPlugin.27.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.5/Engine/Source"
+	},
+	{
+		"file": "/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/Plugins/SolanaPlugin/Source/SolanaPlugin/SolanaPlugin.Build.cs",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/.vscode/compileCommands_SolanaSDK/SolanaPlugin.27.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.5/Engine/Source"
+	},
+	{
+		"file": "/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/Plugins/SolanaPlugin/Source/SolanaPlugin/ThirdParty/libsolana_c_sdk.dylib",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/.vscode/compileCommands_SolanaSDK/SolanaPlugin.27.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.5/Engine/Source"
+	},
+	{
+		"file": "/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/Plugins/SolanaPlugin/Source/SolanaPlugin/ThirdParty/solana_sdk.h",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/.vscode/compileCommands_SolanaSDK/SolanaPlugin.27.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.5/Engine/Source"
+	},
+	{
+		"file": "/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/Source/SolanaSDK/SolanaSDK.Build.cs",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/.vscode/compileCommands_SolanaSDK/SolanaSDK.1.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.5/Engine/Source"
+	},
+	{
+		"file": "/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/Source/SolanaSDK/SolanaSDK.cpp",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/.vscode/compileCommands_SolanaSDK/SolanaSDK.1.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.5/Engine/Source"
+	},
+	{
+		"file": "/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/Source/SolanaSDK/SolanaSDK.h",
+		"arguments": [
+			"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+			"@/Users/thanhngocnguyenduc/Documents/Unreal Projects/SolanaSDK/.vscode/compileCommands_SolanaSDK/SolanaSDK.1.rsp"
+		],
+		"directory": "/Users/Shared/Epic Games/UE_5.5/Engine/Source"
+	}
+]

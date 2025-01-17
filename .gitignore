@@ -72,8 +72,8 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
 /Saved
-/Content
 /DerivedDataCache
 /SolanaSDK (Mac).xcworkspace
 /.vscode
